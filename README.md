@@ -11,7 +11,21 @@ docker compose up --build
 Open http://localhost:8080. The database schema in `db/schema.sql` loads on first start.
 Optionally copy `.env.example` to `.env` to change credentials.
 
-## Add a session
+## Run with Apple's `container` CLI
+
+Apple's `container` has no Compose, so a helper script starts MySQL and the web app:
+
+```
+scripts/apple-container.sh up
+scripts/apple-container.sh add-session "2026-11-06 16:00" "Vibe-Coding Happy Hour" "https://join.example.com/abc"
+scripts/apple-container.sh down
+```
+
+The database lives in the `webinar-data` volume. To query registrants, use
+`container exec webinar-db mysql -uwebinar -pwebinar_pass webinar -e "..."`.
+The web container's code is baked in at build, so re-run `down` then `up` after code changes.
+
+## Add a session (Docker)
 
 Times are entered in Eastern time and stored in UTC.
 
