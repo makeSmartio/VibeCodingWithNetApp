@@ -1,0 +1,16 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: -apple-system, "Segoe UI", Roboto, sans-serif; background: #f2f5f9; color: #1b2733; }
+.card { max-width: 620px; margin: 2rem auto; background: #fff; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+h1 { margin-top: 0; color: #0067c5; }
+.tagline { color: #566; }
+label { display: block; margin: 1rem 0 0; font-weight: 600; }
+input[type=text], input[type=email], textarea { display: block; width: 100%; padding: .6rem; margin-top: .3rem; border: 1px solid #bcc7d3; border-radius: 6px; font: inherit; }
+fieldset { border: 1px solid #d5dde6; border-radius: 8px; margin: 1rem 0 0; }
+.session { display: flex; gap: .6rem; font-weight: normal; align-items: flex-start; }
+.session.full { opacity: .5; }
+.session input { margin-top: .3rem; }
+button, .button { display: inline-block; margin-top: 1.5rem; padding: .7rem 1.4rem; background: #0067c5; color: #fff; border: 0; border-radius: 6px; font: inherit; font-weight: 600; cursor: pointer; text-decoration: none; }
+button:hover, .button:hover { background: #004f99; }
+.alert { padding: .8rem 1rem; border-radius: 6px; margin: 1rem 0; }
+.alert.error { background: #fde8e8; color: #8a1c1c; }
+.hp { position: absolute; left: -9999px; }
