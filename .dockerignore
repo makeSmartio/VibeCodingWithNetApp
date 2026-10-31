@@ -1,0 +1,13 @@
+# Keep secrets and local clutter out of the image.
+.env
+.env.*
+.git
+.gitignore
+.cursor
+.DS_Store
+*.csv
+docker-compose.yml
+Dockerfile
+.dockerignore
+scripts/
+README.md

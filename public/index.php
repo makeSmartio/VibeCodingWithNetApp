@@ -70,6 +70,7 @@ $selected = (int)($old['session_id'] ?? ($_GET['session'] ?? ($sessions[0]['id']
     <label>Email *<input type="email" name="email" maxlength="255" required value="<?= e($old['email'] ?? '') ?>"></label>
     <label>Company *<input type="text" name="company" maxlength="150" required value="<?= e($old['company'] ?? '') ?>"></label>
     <label>Topic or question (optional)<textarea name="question" rows="3" maxlength="2000"><?= e($old['question'] ?? '') ?></textarea></label>
+    <p class="fine-print">By registering, you agree that we may use this information to manage your registration, as described in our <a href="privacy.php">privacy notice</a>.</p>
     <button type="submit">Register</button>
   </form>
   <?php endif; ?>

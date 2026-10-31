@@ -9,9 +9,31 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/db.php';
 
-// Start the session only if one isn't already running.
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+/** True when the visitor reached us over HTTPS (directly or via a TLS-terminating proxy). */
+function is_https(): bool
+{
+    return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
+}
+
+if (PHP_SAPI !== 'cli') {
+    // Basic browser security headers for every page.
+    header('X-Content-Type-Options: nosniff');
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+    header("Content-Security-Policy: default-src 'self'; frame-ancestors 'none'; form-action 'self'");
+
+    // Start the session with hardened cookie settings:
+    //  - httponly: JavaScript can't read the cookie
+    //  - samesite Lax: the cookie isn't sent on cross-site form posts
+    //  - secure: only sent over HTTPS (when the site is served over HTTPS)
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start([
+            'cookie_httponly' => true,
+            'cookie_samesite' => 'Lax',
+            'cookie_secure' => is_https(),
+            'use_strict_mode' => true,
+        ]);
+    }
 }
 
 /**

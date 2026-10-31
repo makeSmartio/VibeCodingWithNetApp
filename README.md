@@ -9,7 +9,15 @@ docker compose up --build
 ```
 
 Open http://localhost:8080. The database schema in `db/schema.sql` loads on first start.
-Optionally copy `.env.example` to `.env` to change credentials.
+First copy `.env.example` to `.env` and set real passwords; the app won't start without them.
+(`mysql -p` commands below prompt for the `DB_PASS` value.)
+
+### Before going live
+
+- Put the site behind HTTPS (a load balancer or reverse proxy that terminates TLS). Session cookies are marked
+  `Secure` automatically when requests arrive over HTTPS.
+- Remove the `.:/var/www/html` volume from `docker-compose.yml` so the image's code is used, not your working folder.
+- Replace the placeholder text in `public/privacy.php` with wording approved by NetApp Legal/Privacy.
 
 ## Run with Apple's `container` CLI
 
@@ -22,7 +30,7 @@ scripts/apple-container.sh down
 ```
 
 The database lives in the `webinar-data` volume. To query registrants, use
-`container exec webinar-db mysql -uwebinar -pwebinar_pass webinar -e "..."`.
+`container exec webinar-db mysql -uwebinar -p webinar -e "..."`.
 The web container's code is baked in at build, so re-run `down` then `up` after code changes.
 
 ## Add a session (Docker)
@@ -38,14 +46,14 @@ All arguments are optional (defaults: next Friday 4 PM ET, default title, no lin
 ## View registrants
 
 ```
-docker compose exec db mysql -uwebinar -pwebinar_pass webinar \
+docker compose exec db mysql -uwebinar -p webinar \
   -e "SELECT s.starts_at, r.name, r.email, r.company, r.question FROM registrations r JOIN sessions s ON s.id=r.session_id ORDER BY s.starts_at, r.created_at"
 ```
 
 CSV export:
 
 ```
-docker compose exec db mysql -uwebinar -pwebinar_pass webinar --batch \
+docker compose exec db mysql -uwebinar -p webinar --batch \
   -e "SELECT * FROM registrations" | tr '\t' ','  > registrants.csv
 ```
 
@@ -55,7 +63,7 @@ docker compose exec db mysql -uwebinar -pwebinar_pass webinar --batch \
 Repeat sign-ups are ignored quietly. To list subscribers:
 
 ```
-docker compose exec db mysql -uwebinar -pwebinar_pass webinar -e "SELECT email, name, company, created_at FROM subscribers"
+docker compose exec db mysql -uwebinar -p webinar -e "SELECT email, name, company, created_at FROM subscribers"
 ```
 
 If your database was created before this table existed, run `db/schema.sql` against it once (it only creates missing tables).
@@ -72,7 +80,7 @@ https://YOUR-SITE/unsubscribe.php?t=<unsubscribe_token>
 To get each subscriber's link:
 
 ```
-docker compose exec db mysql -uwebinar -pwebinar_pass webinar \
+docker compose exec db mysql -uwebinar -p webinar \
   -e "SELECT email, CONCAT('https://YOUR-SITE/unsubscribe.php?t=', unsubscribe_token) AS link FROM subscribers"
 ```
 

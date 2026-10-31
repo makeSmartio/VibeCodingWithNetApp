@@ -1,3 +1,4 @@
+# Passwords have no defaults on purpose: copy .env.example to .env and set real values.
 services:
   web:
     build: .
@@ -7,9 +8,9 @@ services:
       DB_HOST: db
       DB_NAME: ${DB_NAME:-webinar}
       DB_USER: ${DB_USER:-webinar}
-      DB_PASS: ${DB_PASS:-webinar_pass}
+      DB_PASS: ${DB_PASS:?Set DB_PASS in .env}
     volumes:
-      - .:/var/www/html
+      - .:/var/www/html   # live code for local development; remove for production
     depends_on:
       db:
         condition: service_healthy
@@ -19,14 +20,14 @@ services:
     environment:
       MYSQL_DATABASE: ${DB_NAME:-webinar}
       MYSQL_USER: ${DB_USER:-webinar}
-      MYSQL_PASSWORD: ${DB_PASS:-webinar_pass}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS:-root_pass}
+      MYSQL_PASSWORD: ${DB_PASS:?Set DB_PASS in .env}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS:?Set DB_ROOT_PASS in .env}
       TZ: UTC
     volumes:
       - dbdata:/var/lib/mysql
       - ./db/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${DB_ROOT_PASS:-root_pass}"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p\"$$MYSQL_ROOT_PASSWORD\""]
       interval: 5s
       timeout: 5s
       retries: 20

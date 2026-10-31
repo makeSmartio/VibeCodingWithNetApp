@@ -74,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <label>Email *<input type="email" name="email" maxlength="255" required value="<?= e($old['email']) ?>"></label>
       <label>Name (optional)<input type="text" name="name" maxlength="150" value="<?= e($old['name']) ?>"></label>
       <label>Company (optional)<input type="text" name="company" maxlength="150" value="<?= e($old['company']) ?>"></label>
+      <p class="fine-print">By joining, you agree to receive emails about Vibe-Coding with NetApp sessions. You can unsubscribe at any time. See our <a href="privacy.php">privacy notice</a>.</p>
       <button type="submit">Join the mailing list</button>
     </form>
   <?php endif; ?>

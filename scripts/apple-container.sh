@@ -4,10 +4,17 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+# Load settings from .env (same file docker-compose uses).
+if [[ -f .env ]]; then
+  set -a; source .env; set +a
+fi
 DB_NAME="${DB_NAME:-webinar}"
 DB_USER="${DB_USER:-webinar}"
-DB_PASS="${DB_PASS:-webinar_pass}"
-DB_ROOT_PASS="${DB_ROOT_PASS:-root_pass}"
+for v in DB_PASS DB_ROOT_PASS; do
+  if [[ -z "${!v:-}" || "${!v}" == "change-me" ]]; then
+    echo "Set $v in .env (see .env.example)." >&2; exit 1
+  fi
+done
 
 db_ip() {
   container inspect webinar-db | grep -o '"ipv4Address" : "[0-9.]*' | head -1 | grep -o '[0-9.]*$'

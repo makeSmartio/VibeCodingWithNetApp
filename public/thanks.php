@@ -11,10 +11,15 @@ $reg = $_SESSION['registered'] ?? null;
 $session = null;
 
 // If the visitor really just registered, load the webinar session they signed up for.
+// A database failure falls back to the generic thank-you message.
 if ($reg) {
-    $stmt = db()->prepare('SELECT * FROM sessions WHERE id = ?');
-    $stmt->execute([$reg['session_id']]);
-    $session = $stmt->fetch() ?: null;
+    try {
+        $stmt = db()->prepare('SELECT * FROM sessions WHERE id = ?');
+        $stmt->execute([$reg['session_id']]);
+        $session = $stmt->fetch() ?: null;
+    } catch (Throwable $ex) {
+        error_log($ex->getMessage());
+    }
 }
 ?>
 <!DOCTYPE html>
