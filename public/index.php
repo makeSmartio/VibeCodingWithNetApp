@@ -1,11 +1,17 @@
 <?php
+/**
+ * index.php - the home page: lists upcoming sessions and shows the form.
+ * The form posts to register.php, which does the real work.
+ */
 declare(strict_types=1);
 require_once __DIR__ . '/../src/helpers.php';
 
+// One-time error message and previously typed values from a failed submit.
 $error = flash();
 $old = $_SESSION['old'] ?? [];
 unset($_SESSION['old']);
 
+// Load upcoming sessions; if the database is down, show a friendly notice instead of crashing.
 try {
     $sessions = upcoming_sessions();
     $dbError = false;
@@ -13,6 +19,8 @@ try {
     $sessions = [];
     $dbError = true;
 }
+
+// Pre-select a session: the one from a failed submit, ?session=ID in the URL, or the soonest.
 $selected = (int)($old['session_id'] ?? ($_GET['session'] ?? ($sessions[0]['id'] ?? 0)));
 ?>
 <!DOCTYPE html>
@@ -35,12 +43,15 @@ $selected = (int)($old['session_id'] ?? ($_GET['session'] ?? ($sessions[0]['id']
     <p>No upcoming sessions are scheduled yet. Please check back soon.</p>
   <?php elseif ($sessions): ?>
   <form method="post" action="register.php">
+    <!-- CSRF token: proves the form came from this site -->
     <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
+    <!-- Honeypot: hidden from people via CSS; bots tend to fill it in -->
     <div class="hp" aria-hidden="true"><label>Leave blank <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
 
     <fieldset>
       <legend>Choose a session</legend>
       <?php foreach ($sessions as $s):
+          // A session is full when it has a capacity and registrations have reached it.
           $full = $s['capacity'] !== null && (int)$s['reg_count'] >= (int)$s['capacity']; ?>
         <label class="session <?= $full ? 'full' : '' ?>">
           <input type="radio" name="session_id" value="<?= (int)$s['id'] ?>" required
@@ -54,6 +65,7 @@ $selected = (int)($old['session_id'] ?? ($_GET['session'] ?? ($sessions[0]['id']
       <?php endforeach; ?>
     </fieldset>
 
+    <!-- Values are re-filled from $old if the previous attempt failed -->
     <label>Name *<input type="text" name="name" maxlength="150" required value="<?= e($old['name'] ?? '') ?>"></label>
     <label>Email *<input type="email" name="email" maxlength="255" required value="<?= e($old['email'] ?? '') ?>"></label>
     <label>Company *<input type="text" name="company" maxlength="150" required value="<?= e($old['company'] ?? '') ?>"></label>
@@ -61,6 +73,8 @@ $selected = (int)($old['session_id'] ?? ($_GET['session'] ?? ($sessions[0]['id']
     <button type="submit">Register</button>
   </form>
   <?php endif; ?>
+
+  <p class="footer-link">Can't make a session? <a href="subscribe.php">Join the mailing list</a>.</p>
 </main>
 </body>
 </html>

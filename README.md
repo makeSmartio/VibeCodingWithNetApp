@@ -49,6 +49,35 @@ docker compose exec db mysql -uwebinar -pwebinar_pass webinar --batch \
   -e "SELECT * FROM registrations" | tr '\t' ','  > registrants.csv
 ```
 
+## Mailing list
+
+`/subscribe.php` lets anyone join the mailing list at any time (email required; name and company optional).
+Repeat sign-ups are ignored quietly. To list subscribers:
+
+```
+docker compose exec db mysql -uwebinar -pwebinar_pass webinar -e "SELECT email, name, company, created_at FROM subscribers"
+```
+
+If your database was created before this table existed, run `db/schema.sql` against it once (it only creates missing tables).
+If the table exists but has no `unsubscribe_token` column, run `db/migrations/001_subscriber_unsubscribe_token.sql` once.
+
+### Unsubscribe links
+
+Each subscriber has a secret token. Put this link in every email you send:
+
+```
+https://YOUR-SITE/unsubscribe.php?t=<unsubscribe_token>
+```
+
+To get each subscriber's link:
+
+```
+docker compose exec db mysql -uwebinar -pwebinar_pass webinar \
+  -e "SELECT email, CONCAT('https://YOUR-SITE/unsubscribe.php?t=', unsubscribe_token) AS link FROM subscribers"
+```
+
+Clicking the link shows a confirmation button; pressing it deletes the subscriber.
+
 ## Without Docker
 
 Create a MySQL database, run `db/schema.sql`, set `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS`,
